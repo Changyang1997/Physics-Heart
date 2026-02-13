@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Manager System</title>
     
+    <!-- Tailwind CSS & Config -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -12,115 +13,103 @@
         }
     </script>
 
+    <!-- Font Awesome (Icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* Base Font (Default) */
-        body {
-            font-family: 'Sarabun', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
+        body { font-family: 'Sarabun', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        :lang(lo) { font-family: 'Noto Sans Lao', 'Sarabun', sans-serif; }
+        .fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands { font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-hover:hover { filter: brightness(110%); transform: translateY(-2px); }
         
-        /* Lao Font Priority when lang="lo" */
-        :lang(lo) {
-            font-family: 'Noto Sans Lao', 'Sarabun', sans-serif;
-        }
-
-        /* --- CRITICAL FIX: แก้ปัญหาไอคอนไม่ขึ้นเมื่อใช้ภาษาลาว --- */
-        /* บังคับให้ Class ของ Font Awesome ใช้ฟอนต์ของตัวเองเสมอ */
-        .fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands {
-            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .btn-hover:hover {
-            filter: brightness(110%);
-            transform: translateY(-2px);
-        }
-        
-        /* Loading Overlay */
-        #loadingOverlay {
-            background-color: rgba(255, 255, 255, 0.9);
-            z-index: 9999;
-        }
-        .dark #loadingOverlay {
-            background-color: rgba(17, 24, 39, 0.9);
-        }
+        #loadingOverlay { background-color: rgba(255, 255, 255, 0.9); z-index: 9999; }
+        .dark #loadingOverlay { background-color: rgba(17, 24, 39, 0.9); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#f3f4f6] dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
 
+    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 flex flex-col items-center justify-center hidden">
         <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-indigo-600 mb-4"></div>
         <span id="loadingText" class="text-indigo-600 dark:text-indigo-400 font-bold text-lg">Loading data...</span>
     </div>
 
+    <!-- Navbar -->
     <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             
+            <!-- Left Side: Logo & Name -->
             <div class="flex items-center space-x-3">
                 <img id="navLogo" src="" alt="Logo" class="h-10 w-10 object-cover rounded-full border border-gray-200 dark:border-gray-700">
                 <span id="navAppName" class="font-bold text-lg text-gray-800 dark:text-white hidden sm:block">MyLinks App</span>
             </div>
 
+            <!-- Right Side: Controls & Menu -->
             <div class="flex items-center space-x-2 sm:space-x-3">
                 
+                <!-- 1. Layout Switcher (MOVED HERE) -->
+                <!-- อยู่หน้าปุ่มเปลี่ยนภาษา -->
+                <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg border border-gray-200 dark:border-gray-600 mr-2">
+                    <button onclick="setLayout('grid')" id="btnGrid" class="px-2 sm:px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center justify-center" title="Grid View">
+                        <i class="fa-solid fa-border-all sm:mr-1"></i> <span data-i18n="btn_grid" class="hidden sm:inline">Grid</span>
+                    </button>
+                    <button onclick="setLayout('list')" id="btnList" class="px-2 sm:px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center justify-center" title="List View">
+                        <i class="fa-solid fa-list sm:mr-1"></i> <span data-i18n="btn_list" class="hidden sm:inline">List</span>
+                    </button>
+                </div>
+
+                <!-- 2. Language Switcher (Single Button) -->
                 <button onclick="cycleLanguage()" id="langToggleBtn" class="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition border border-gray-200 dark:border-gray-600 shadow-sm mr-2" title="Change Language">
                     <img id="currentLangFlag" src="https://flagcdn.com/w40/la.png" class="w-5 h-5 rounded-full object-cover shadow-sm">
                     <span id="currentLangText" class="text-xs font-bold text-gray-700 dark:text-gray-200">LA</span>
                 </button>
 
+                <!-- 3. Theme Toggle -->
                 <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-600 dark:text-yellow-300 border border-transparent hover:border-gray-200 dark:hover:border-gray-600">
                     <i id="themeIcon" class="fa-solid fa-moon"></i>
                 </button>
 
-                <button id="navLoginBtn" onclick="showPage('login')" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition hidden text-sm sm:text-base">
-                    <i class="fa-solid fa-right-to-bracket mr-1"></i> <span data-i18n="nav_login">Login</span>
+                <!-- 4. Menu Items -->
+                <button id="navLoginBtn" onclick="showPage('login')" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition hidden text-sm sm:text-base ml-2">
+                    <i class="fa-solid fa-right-to-bracket sm:mr-1"></i> <span data-i18n="nav_login" class="hidden sm:inline">Login</span>
                 </button>
-                <button id="navAdminBtn" onclick="showPage('admin')" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition hidden mr-2 text-sm sm:text-base">
-                    <i class="fa-solid fa-gear mr-1"></i> <span data-i18n="nav_admin">Admin</span>
+                <button id="navAdminBtn" onclick="showPage('admin')" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition hidden mr-2 text-sm sm:text-base ml-2">
+                    <i class="fa-solid fa-gear sm:mr-1"></i> <span data-i18n="nav_admin" class="hidden sm:inline">Admin</span>
                 </button>
-                <button id="navHomeBtn" onclick="showPage('home')" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition hidden mr-2 text-sm sm:text-base">
-                    <i class="fa-solid fa-house mr-1"></i> <span data-i18n="nav_home">Home</span>
+                <button id="navHomeBtn" onclick="showPage('home')" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition hidden mr-2 text-sm sm:text-base ml-2">
+                    <i class="fa-solid fa-house sm:mr-1"></i> <span data-i18n="nav_home" class="hidden sm:inline">Home</span>
                 </button>
-                <button id="navLogoutBtn" onclick="logout()" class="text-red-500 hover:text-red-700 font-medium transition hidden text-sm sm:text-base">
-                    <i class="fa-solid fa-right-from-bracket mr-1"></i> <span data-i18n="nav_logout">Logout</span>
+                <button id="navLogoutBtn" onclick="logout()" class="text-red-500 hover:text-red-700 font-medium transition hidden text-sm sm:text-base ml-2">
+                    <i class="fa-solid fa-right-from-bracket sm:mr-1"></i> <span data-i18n="nav_logout" class="hidden sm:inline">Logout</span>
                 </button>
             </div>
         </div>
     </nav>
 
+    <!-- Main Content Area -->
     <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
 
+        <!-- 1. HOME PAGE (Frontend) -->
         <section id="homePage" class="fade-in block">
             <div class="text-center mb-8">
                 <h1 id="siteHeader" class="text-4xl font-bold mb-2 transition-colors">Welcome</h1>
                 <p class="text-gray-500 dark:text-gray-400" data-i18n="home_desc">All your links in one place</p>
             </div>
 
-            <div class="flex justify-end mb-4 max-w-2xl mx-auto">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-1 inline-flex border border-gray-100 dark:border-gray-700">
-                    <button onclick="setLayout('grid')" id="btnGrid" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
-                        <i class="fa-solid fa-border-all mr-1.5"></i> <span data-i18n="btn_grid">Grid</span>
-                    </button>
-                    <button onclick="setLayout('list')" id="btnList" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                        <i class="fa-solid fa-list mr-1.5"></i> <span data-i18n="btn_list">List</span>
-                    </button>
-                </div>
-            </div>
+            <!-- (Layout Controls removed from here) -->
 
+            <!-- Link Container -->
             <div id="publicLinksContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto transition-all duration-300">
-                </div>
+                <!-- Links will be injected here via JS -->
+            </div>
         </section>
 
+        <!-- 2. LOGIN PAGE -->
         <section id="loginPage" class="hidden fade-in">
             <div class="max-w-sm mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg mt-10 transition-colors duration-300">
                 <div class="text-center mb-6">
@@ -130,15 +119,13 @@
                 <form onsubmit="handleLogin(event)">
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" data-i18n="label_username">Username</label>
-                        <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Username" required>
+                        <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                     </div>
                     <div class="mb-6">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" data-i18n="label_password">Password</label>
-                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Password" required>
+                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300" data-i18n="btn_confirm">
-                        Login
-                    </button>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300" data-i18n="btn_confirm">Login</button>
                 </form>
                 <p id="loginError" class="text-red-500 text-sm text-center mt-3 hidden" data-i18n="login_error">Invalid username or password</p>
                 <div class="mt-4 text-center">
@@ -147,18 +134,20 @@
             </div>
         </section>
 
+        <!-- 3. ADMIN PAGE (Backend) -->
         <section id="adminPage" class="hidden fade-in">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="admin_header">Data Management (Admin)</h2>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="admin_header">Data Management</h2>
             </div>
 
+            <!-- Global Settings -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 border-b dark:border-gray-700 pb-2"><i class="fa-solid fa-palette mr-2"></i><span data-i18n="settings_title">Settings</span></h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_app_name">Website Name (Navbar)</label>
-                        <input type="text" id="configAppName" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md font-bold" placeholder="MyLinks App">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_app_name">Website Name</label>
+                        <input type="text" id="configAppName" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md font-bold">
                     </div>
 
                     <div class="md:col-span-2">
@@ -166,15 +155,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <span class="text-xs text-gray-500 dark:text-gray-400 mb-1 block"><i class="fa-solid fa-language mr-1"></i>ພາສາລາວ (Lao)</span>
-                                <input type="text" id="configHeaderTextLO" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="ຍິນດີຕ້ອນຮັບ" oninput="updateConfigPreview()">
+                                <input type="text" id="configHeaderTextLO" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" oninput="updateConfigPreview()">
                             </div>
                             <div>
                                 <span class="text-xs text-gray-500 dark:text-gray-400 mb-1 block"><i class="fa-solid fa-language mr-1"></i>ภาษาไทย (Thai)</span>
-                                <input type="text" id="configHeaderTextTH" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="ยินดีต้อนรับ" oninput="updateConfigPreview()">
+                                <input type="text" id="configHeaderTextTH" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" oninput="updateConfigPreview()">
                             </div>
                             <div>
                                 <span class="text-xs text-gray-500 dark:text-gray-400 mb-1 block"><i class="fa-solid fa-language mr-1"></i>English</span>
-                                <input type="text" id="configHeaderTextEN" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="Welcome" oninput="updateConfigPreview()">
+                                <input type="text" id="configHeaderTextEN" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" oninput="updateConfigPreview()">
                             </div>
                         </div>
                     </div>
@@ -190,7 +179,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_logo_url">Logo URL</label>
                         <div class="flex space-x-2">
-                            <input type="url" id="configLogoUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="https://..." onchange="updateConfigPreview()">
+                            <input type="url" id="configLogoUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" onchange="updateConfigPreview()">
                             <div class="w-12 h-10 border dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-600 flex items-center justify-center overflow-hidden flex-shrink-0">
                                 <img id="previewLogo" src="" class="h-full w-auto object-contain">
                             </div>
@@ -205,6 +194,7 @@
                 </div>
             </div>
 
+            <!-- Add/Edit Button -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6 border border-gray-100 dark:border-gray-700 ring-2 ring-transparent transition-all duration-300" id="formSection">
                 <div class="flex justify-between items-center border-b dark:border-gray-700 pb-2 mb-4">
                     <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200" id="formTitle"><i class="fa-solid fa-plus-circle mr-2"></i><span data-i18n="add_btn_title">Add New Button</span></h3>
@@ -215,14 +205,13 @@
                 
                 <form onsubmit="handleLinkSubmit(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                     <input type="hidden" id="editLinkId">
-
                     <div class="md:col-span-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_btn_name">Button Label</label>
                         <input type="text" id="newLabel" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-green-400" required>
                     </div>
                     <div class="md:col-span-5">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_url">URL</label>
-                        <input type="url" id="newUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-green-400" placeholder="https://..." required>
+                        <input type="url" id="newUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-green-400" required>
                     </div>
                     <div class="md:col-span-1">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_btn_color">Color</label>
@@ -236,50 +225,44 @@
                 </form>
             </div>
 
+            <!-- List -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                  <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 p-4 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600" data-i18n="table_header">Current Buttons</h3>
                  <div class="overflow-x-auto">
                      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                         <tbody id="adminLinksTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                             </tbody>
+                         <tbody id="adminLinksTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"></tbody>
                      </table>
-                     <div id="emptyState" class="text-center py-8 text-gray-400 dark:text-gray-500 hidden" data-i18n="empty_state">
-                         No buttons found
-                     </div>
+                     <div id="emptyState" class="text-center py-8 text-gray-400 dark:text-gray-500 hidden" data-i18n="empty_state">No buttons found</div>
                  </div>
             </div>
         </section>
-
     </main>
 
-    <footer class="text-center py-6 text-gray-400 text-sm">
-        © 2024 Link Manager System. All rights reserved.
-    </footer>
+    <footer class="text-center py-6 text-gray-400 text-sm">© Physics Heart Link Manager System. All rights reserved.</footer>
 
     <script>
         // --- API CONFIGURATION ---
-        // ใส่ URL ของ Google Apps Script ที่คุณ Deploy แล้วที่นี่
         const API_URL = "https://script.google.com/macros/s/AKfycbxMoXSejlg9m28pkjQ2-y1lXlsI_dWIY6_MkQ0SEJKtiPLmVduYuEftfw6g7JbFVW5b/exec";
 
         // --- TRANSLATION DATA ---
         const TRANSLATIONS = {
             lo: {
                 nav_login: "ເຂົ້າສູ່ລະບົບ", nav_admin: "ຈັດການຂໍ້ມູນ", nav_home: "ໜ້າຫຼັກ", nav_logout: "ອອກຈາກລະບົບ",
-                home_desc: "ລວມລິ້ງທີ່ໜ້າສົນໃຈໄວ້ບ່ອນດຽວ", btn_grid: "ຕາຕະລາງ", btn_list: "ລາຍການ",
+                home_desc: "ຍິນດີຕ້ອນຮັບເຂົ້າສູ່ເວັບໄຊທ໌ <>ຫົວໃຈຟີຊິກສາດ</>", btn_grid: "ຕາຕະລາງ", btn_list: "ລາຍການ",
                 login_header: "ເຂົ້າສູ່ລະບົບ", login_sub: "Admin Panel", label_username: "ຊື່ຜູ້ໃຊ້", label_password: "ລະຫັດຜ່ານ",
                 ph_username: "ກະລຸນາໃສ່ຊື່ຜູ້ໃຊ້", ph_password: "ກະລຸນາໃສ່ລະຫັດຜ່ານ", btn_confirm: "ຢືນຢັນ",
                 login_error: "ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ", btn_back_home: "ກັບໄປໜ້າຫຼັກ", admin_header: "ຈັດການຂໍ້ມູນ (Admin)",
                 settings_title: "ຕັ້ງຄ່າທົ່ວໄປ", label_app_name: "ຊື່ເວັບໄຊ (Navbar)", label_header_text: "ຂໍ້ຄວາມຫົວຂໍ້ເວັບໄຊ (ແຕ່ລະພາສາ)",
                 label_header_color: "ສີຕົວໜັງສືຫົວຂໍ້", label_logo_url: "URL ໂລໂກ້", btn_save_config: "ບັນທຶກການຕັ້ງຄ່າ",
                 saved_msg: "ບັນທຶກແລ້ວ", add_btn_title: "ເພີ່ມປຸ່ມໃໝ່", edit_btn_title: "ແກ້ໄຂປຸ່ມ", cancel_edit: "ຍົກເລີກ",
-                label_btn_name: "ຊື່ປຸ່ມ (Label)", label_url: "ລິ້ງ URL", label_btn_color: "ສີປຸ່ມ", btn_add: "ເພີ່ມ", btn_save_edit: "ບັນທຶກ",
+                label_btn_name: "ຊື່ປຸ່ມ (Label)", label_url: "ລິ້ງ URL", label_btn_color: "ສີປຸ່ມ", btn_add: "ເພີ່ມ", btn_save_edit: "ບັນທึก",
                 table_header: "ລາຍການປຸ່ມປະຈຸບັນ", th_example: "ຕົວຢ່າງ", th_name: "ຊື່ປຸ່ມ", th_url: "URL", th_manage: "ຈັດການ",
                 btn_edit: "ແກ້ໄຂ", btn_delete: "ລຶບ", empty_state: "ຍັງບໍ່ມີຂໍ້ມູນປຸ່ມ", confirm_delete: "ທ່ານຕ້ອງການລຶບປຸ່ມນີ້ບໍ່?",
                 alert_header_req: "ກະລຸນາໃສ່ຂໍ້ຄວາມຫົວຂໍ້", alert_saved: "ບັນທຶກລົງ Google Sheet ແລ້ວ"
             },
             th: {
                 nav_login: "เข้าสู่ระบบ", nav_admin: "จัดการหลังบ้าน", nav_home: "หน้าหลัก", nav_logout: "ออกจากระบบ",
-                home_desc: "รวมลิงก์ที่น่าสนใจไว้ในที่เดียว", btn_grid: "ตาราง", btn_list: "รายการ",
+                home_desc: "ยินดีต้อนรับสู่เว็บไซต์ <>หัวใจฟิสิกส์</>", btn_grid: "ตาราง", btn_list: "รายการ",
                 login_header: "เข้าสู่ระบบหลังบ้าน", login_sub: "Admin Panel", label_username: "Username", label_password: "Password",
                 ph_username: "กรอกชื่อผู้ใช้", ph_password: "กรอกรหัสผ่าน", btn_confirm: "ยืนยันตัวตน",
                 login_error: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", btn_back_home: "กลับไปหน้าหลัก", admin_header: "จัดการข้อมูล (Admin)",
@@ -293,7 +276,7 @@
             },
             en: {
                 nav_login: "Login", nav_admin: "Admin", nav_home: "Home", nav_logout: "Logout",
-                home_desc: "All your links in one place", btn_grid: "Grid", btn_list: "List",
+                home_desc: "Welcome to the website <>Physics Heart</>", btn_grid: "Grid", btn_list: "List",
                 login_header: "Admin Login", login_sub: "Admin Panel", label_username: "Username", label_password: "Password",
                 ph_username: "Enter username", ph_password: "Enter password", btn_confirm: "Login",
                 login_error: "Invalid username or password", btn_back_home: "Back to Home", admin_header: "Data Management",
@@ -330,14 +313,14 @@
 
         // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadDataFromApi(); // Load data from Google Sheet on start
+            loadDataFromApi();
             updateNav();
             setLayout('grid');
         });
 
         // --- API FUNCTIONS ---
         function loadDataFromApi() {
-            showLoading(true, "Connecting to Google Sheet...");
+            showLoading(true, "ຍິນດີຕ້ອນຮັບ...");
             fetch(API_URL)
             .then(response => response.json())
             .then(data => {
@@ -353,7 +336,6 @@
             })
             .catch(error => {
                 console.error('Error loading data:', error);
-                // Don't show alert on load error, just use defaults
                 changeLanguage(currentLang);
             })
             .finally(() => {
@@ -445,23 +427,18 @@
         }
 
         function renderApp() {
-            // App Name
             const appName = appData.config.appName || "MyLinks App";
             document.getElementById('navAppName').innerText = appName;
             document.title = appName;
 
-            // Header Text (Dynamic)
             const header = document.getElementById('siteHeader');
             const textObj = appData.config.headerText || {};
-            // Fallback chain: Chosen Lang -> Lao -> Welcome
             header.innerText = textObj[currentLang] || textObj['lo'] || "Welcome";
             header.style.color = appData.config.headerColor;
             
-            // Logo
             const logoUrl = appData.config.logoUrl || "https://lh3.googleusercontent.com/d/1vXP8vomYGQUwJ4Pisavo_7Mb9uAKJOGV"; 
             document.getElementById('navLogo').src = logoUrl;
 
-            // Admin Inputs
             if (isLoggedIn) {
                 document.getElementById('configAppName').value = appName;
                 document.getElementById('configHeaderTextLO').value = textObj['lo'] || '';
@@ -472,8 +449,6 @@
                 document.getElementById('previewLogo').src = logoUrl;
                 renderAdminTable();
             }
-
-            // Public Links
             renderPublicLinks();
         }
 
@@ -576,8 +551,17 @@
         function deleteLink(id) { if(confirm(TRANSLATIONS[currentLang].confirm_delete)) { if(document.getElementById('editLinkId').value == id) cancelEdit(); appData.links = appData.links.filter(l => l.id !== id); saveData(); } }
         function setLayout(mode) {
             const c = document.getElementById('publicLinksContainer'), g = document.getElementById('btnGrid'), l = document.getElementById('btnList');
-            if(mode === 'grid') { c.classList.add('md:grid-cols-2'); g.classList.add('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); l.classList.remove('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); }
-            else { c.classList.remove('md:grid-cols-2'); l.classList.add('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); g.classList.remove('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); }
+            if(mode === 'grid') { 
+                c.classList.add('md:grid-cols-2'); 
+                g.classList.add('bg-white','dark:bg-gray-600','shadow-sm','text-indigo-600','dark:text-white'); 
+                l.classList.remove('bg-white','dark:bg-gray-600','shadow-sm','text-indigo-600','dark:text-white');
+                l.classList.add('text-gray-500','dark:text-gray-400');
+            } else { 
+                c.classList.remove('md:grid-cols-2'); 
+                l.classList.add('bg-white','dark:bg-gray-600','shadow-sm','text-indigo-600','dark:text-white');
+                g.classList.remove('bg-white','dark:bg-gray-600','shadow-sm','text-indigo-600','dark:text-white');
+                g.classList.add('text-gray-500','dark:text-gray-400');
+            }
         }
         function updateConfigPreview() { document.getElementById('colorValue').innerText = document.getElementById('configHeaderColor').value; document.getElementById('previewLogo').src = document.getElementById('configLogoUrl').value || ""; }
         function toggleTheme() { document.documentElement.classList.toggle('dark'); }
