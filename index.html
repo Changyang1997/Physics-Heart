@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Manager System (Connected)</title>
+    <title>Link Manager System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -17,28 +17,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Sarabun', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        :lang(lo) { font-family: 'Noto Sans Lao', 'Sarabun', sans-serif; }
-        .fa, .fas, .far, .fab { font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .btn-hover:hover { filter: brightness(110%); transform: translateY(-2px); }
+        /* Base Font (Default) */
+        body {
+            font-family: 'Sarabun', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Lao Font Priority when lang="lo" */
+        :lang(lo) {
+            font-family: 'Noto Sans Lao', 'Sarabun', sans-serif;
+        }
+
+        /* --- CRITICAL FIX: แก้ปัญหาไอคอนไม่ขึ้นเมื่อใช้ภาษาลาว --- */
+        /* บังคับให้ Class ของ Font Awesome ใช้ฟอนต์ของตัวเองเสมอ */
+        .fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-hover:hover {
+            filter: brightness(110%);
+            transform: translateY(-2px);
+        }
         
         /* Loading Overlay */
         #loadingOverlay {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.9);
             z-index: 9999;
         }
         .dark #loadingOverlay {
-            background-color: rgba(17, 24, 39, 0.8);
+            background-color: rgba(17, 24, 39, 0.9);
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#f3f4f6] dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
 
     <div id="loadingOverlay" class="fixed inset-0 flex flex-col items-center justify-center hidden">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-        <span id="loadingText" class="text-indigo-600 dark:text-indigo-400 font-bold">Loading data...</span>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-indigo-600 mb-4"></div>
+        <span id="loadingText" class="text-indigo-600 dark:text-indigo-400 font-bold text-lg">Loading data...</span>
     </div>
 
     <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50 transition-colors duration-300">
@@ -50,7 +72,8 @@
             </div>
 
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <button onclick="cycleLanguage()" id="langToggleBtn" class="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition border border-gray-200 dark:border-gray-600 shadow-sm mr-2">
+                
+                <button onclick="cycleLanguage()" id="langToggleBtn" class="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition border border-gray-200 dark:border-gray-600 shadow-sm mr-2" title="Change Language">
                     <img id="currentLangFlag" src="https://flagcdn.com/w40/la.png" class="w-5 h-5 rounded-full object-cover shadow-sm">
                     <span id="currentLangText" class="text-xs font-bold text-gray-700 dark:text-gray-200">LA</span>
                 </button>
@@ -94,7 +117,8 @@
                 </div>
             </div>
 
-            <div id="publicLinksContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto transition-all duration-300"></div>
+            <div id="publicLinksContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto transition-all duration-300">
+                </div>
         </section>
 
         <section id="loginPage" class="hidden fade-in">
@@ -106,13 +130,15 @@
                 <form onsubmit="handleLogin(event)">
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" data-i18n="label_username">Username</label>
-                        <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Username" required>
                     </div>
                     <div class="mb-6">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" data-i18n="label_password">Password</label>
-                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300" data-i18n="btn_confirm">Login</button>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300" data-i18n="btn_confirm">
+                        Login
+                    </button>
                 </form>
                 <p id="loginError" class="text-red-500 text-sm text-center mt-3 hidden" data-i18n="login_error">Invalid username or password</p>
                 <div class="mt-4 text-center">
@@ -123,7 +149,7 @@
 
         <section id="adminPage" class="hidden fade-in">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="admin_header">Data Management</h2>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="admin_header">Data Management (Admin)</h2>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
@@ -131,8 +157,8 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_app_name">Website Name</label>
-                        <input type="text" id="configAppName" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md font-bold">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_app_name">Website Name (Navbar)</label>
+                        <input type="text" id="configAppName" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md font-bold" placeholder="MyLinks App">
                     </div>
 
                     <div class="md:col-span-2">
@@ -140,15 +166,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <span class="text-xs text-gray-500 dark:text-gray-400 mb-1 block"><i class="fa-solid fa-language mr-1"></i>ພາສາລາວ (Lao)</span>
-                                <input type="text" id="configHeaderTextLO" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" oninput="updateConfigPreview()">
+                                <input type="text" id="configHeaderTextLO" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="ຍິນດີຕ້ອນຮັບ" oninput="updateConfigPreview()">
                             </div>
                             <div>
                                 <span class="text-xs text-gray-500 dark:text-gray-400 mb-1 block"><i class="fa-solid fa-language mr-1"></i>ภาษาไทย (Thai)</span>
-                                <input type="text" id="configHeaderTextTH" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" oninput="updateConfigPreview()">
+                                <input type="text" id="configHeaderTextTH" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="ยินดีต้อนรับ" oninput="updateConfigPreview()">
                             </div>
                             <div>
                                 <span class="text-xs text-gray-500 dark:text-gray-400 mb-1 block"><i class="fa-solid fa-language mr-1"></i>English</span>
-                                <input type="text" id="configHeaderTextEN" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" oninput="updateConfigPreview()">
+                                <input type="text" id="configHeaderTextEN" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="Welcome" oninput="updateConfigPreview()">
                             </div>
                         </div>
                     </div>
@@ -164,7 +190,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_logo_url">Logo URL</label>
                         <div class="flex space-x-2">
-                            <input type="url" id="configLogoUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" onchange="updateConfigPreview()">
+                            <input type="url" id="configLogoUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="https://..." onchange="updateConfigPreview()">
                             <div class="w-12 h-10 border dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-600 flex items-center justify-center overflow-hidden flex-shrink-0">
                                 <img id="previewLogo" src="" class="h-full w-auto object-contain">
                             </div>
@@ -189,13 +215,14 @@
                 
                 <form onsubmit="handleLinkSubmit(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                     <input type="hidden" id="editLinkId">
+
                     <div class="md:col-span-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_btn_name">Button Label</label>
                         <input type="text" id="newLabel" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-green-400" required>
                     </div>
                     <div class="md:col-span-5">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_url">URL</label>
-                        <input type="url" id="newUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-green-400" required>
+                        <input type="url" id="newUrl" class="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-green-400" placeholder="https://..." required>
                     </div>
                     <div class="md:col-span-1">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="label_btn_color">Color</label>
@@ -213,18 +240,25 @@
                  <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 p-4 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600" data-i18n="table_header">Current Buttons</h3>
                  <div class="overflow-x-auto">
                      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                         <tbody id="adminLinksTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+                         <tbody id="adminLinksTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                             </tbody>
                      </table>
-                     <div id="emptyState" class="text-center py-8 text-gray-400 dark:text-gray-500 hidden" data-i18n="empty_state">No buttons found</div>
+                     <div id="emptyState" class="text-center py-8 text-gray-400 dark:text-gray-500 hidden" data-i18n="empty_state">
+                         No buttons found
+                     </div>
                  </div>
             </div>
         </section>
+
     </main>
 
-    <footer class="text-center py-6 text-gray-400 text-sm">© 2024 Link Manager System. All rights reserved.</footer>
+    <footer class="text-center py-6 text-gray-400 text-sm">
+        © 2024 Link Manager System. All rights reserved.
+    </footer>
 
     <script>
         // --- API CONFIGURATION ---
+        // ใส่ URL ของ Google Apps Script ที่คุณ Deploy แล้วที่นี่
         const API_URL = "https://script.google.com/macros/s/AKfycbxMoXSejlg9m28pkjQ2-y1lXlsI_dWIY6_MkQ0SEJKtiPLmVduYuEftfw6g7JbFVW5b/exec";
 
         // --- TRANSLATION DATA ---
@@ -238,7 +272,7 @@
                 settings_title: "ຕັ້ງຄ່າທົ່ວໄປ", label_app_name: "ຊື່ເວັບໄຊ (Navbar)", label_header_text: "ຂໍ້ຄວາມຫົວຂໍ້ເວັບໄຊ (ແຕ່ລະພາສາ)",
                 label_header_color: "ສີຕົວໜັງສືຫົວຂໍ້", label_logo_url: "URL ໂລໂກ້", btn_save_config: "ບັນທຶກການຕັ້ງຄ່າ",
                 saved_msg: "ບັນທຶກແລ້ວ", add_btn_title: "ເພີ່ມປຸ່ມໃໝ່", edit_btn_title: "ແກ້ໄຂປຸ່ມ", cancel_edit: "ຍົກເລີກ",
-                label_btn_name: "ຊື່ປຸ່ມ (Label)", label_url: "ລິ້ງ URL", label_btn_color: "ສີປຸ່ມ", btn_add: "ເພີ່ມ", btn_save_edit: "ບັນທึก",
+                label_btn_name: "ຊື່ປຸ່ມ (Label)", label_url: "ລິ້ງ URL", label_btn_color: "ສີປຸ່ມ", btn_add: "ເພີ່ມ", btn_save_edit: "ບັນທຶກ",
                 table_header: "ລາຍການປຸ່ມປະຈຸບັນ", th_example: "ຕົວຢ່າງ", th_name: "ຊື່ປຸ່ມ", th_url: "URL", th_manage: "ຈັດການ",
                 btn_edit: "ແກ້ໄຂ", btn_delete: "ລຶບ", empty_state: "ຍັງບໍ່ມີຂໍ້ມູນປຸ່ມ", confirm_delete: "ທ່ານຕ້ອງການລຶບປຸ່ມນີ້ບໍ່?",
                 alert_header_req: "ກະລຸນາໃສ່ຂໍ້ຄວາມຫົວຂໍ້", alert_saved: "ບັນທຶກລົງ Google Sheet ແລ້ວ"
@@ -296,7 +330,7 @@
 
         // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadDataFromApi();
+            loadDataFromApi(); // Load data from Google Sheet on start
             updateNav();
             setLayout('grid');
         });
@@ -307,23 +341,19 @@
             fetch(API_URL)
             .then(response => response.json())
             .then(data => {
-                // Merge loaded data with defaults to ensure structure
                 appData = {
                     config: { ...DEFAULT_DATA.config, ...data.config },
                     links: data.links || []
                 };
-                // Ensure headerText is object
                 if (typeof appData.config.headerText === 'string') {
                     const txt = appData.config.headerText;
                     appData.config.headerText = { lo: txt, th: txt, en: txt };
                 }
-                
-                changeLanguage(currentLang); // Re-render with data
+                changeLanguage(currentLang);
             })
             .catch(error => {
                 console.error('Error loading data:', error);
-                alert("Cannot load data from Google Sheet. Using defaults.");
-                appData = DEFAULT_DATA;
+                // Don't show alert on load error, just use defaults
                 changeLanguage(currentLang);
             })
             .finally(() => {
@@ -332,7 +362,6 @@
         }
 
         function saveData() {
-            // Get values from inputs first
             const appName = document.getElementById('configAppName').value;
             const textLO = document.getElementById('configHeaderTextLO').value;
             const textTH = document.getElementById('configHeaderTextTH').value;
@@ -340,10 +369,8 @@
             const color = document.getElementById('configHeaderColor').value;
             const logo = document.getElementById('configLogoUrl').value;
             
-            // Validate
             if(!textLO && !textTH && !textEN) return alert(TRANSLATIONS[currentLang].alert_header_req);
 
-            // Update appData object
             appData.config.headerText = { lo: textLO, th: textTH, en: textEN };
             appData.config.appName = appName;
             appData.config.headerColor = color;
@@ -351,20 +378,18 @@
 
             showLoading(true, "Saving to Google Sheet...");
             
-            // Send POST request
             fetch(API_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Google Script WebApp requirement for simple POST
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(appData)
             })
             .then(() => {
-                // Since mode is no-cors, we can't read response, assume success if no error
                 const btn = document.querySelector('button[onclick="saveData()"]');
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>${TRANSLATIONS[currentLang].alert_saved}</span>`;
                 btn.classList.add('bg-green-600');
-                renderApp(); // Update UI
+                renderApp(); 
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
                     btn.classList.remove('bg-green-600');
@@ -372,7 +397,7 @@
             })
             .catch(error => {
                 console.error('Error saving data:', error);
-                alert("Error saving data. Please try again.");
+                alert("Error saving data. Please check internet connection.");
             })
             .finally(() => {
                 showLoading(false);
@@ -401,7 +426,6 @@
             currentLang = lang;
             document.documentElement.lang = lang;
 
-            // Update translations
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (key !== 'nav_app_name' && TRANSLATIONS[lang][key]) {
@@ -409,7 +433,6 @@
                 }
             });
 
-            // Update placeholders
             document.getElementById('username').placeholder = TRANSLATIONS[lang]['ph_username'];
             document.getElementById('password').placeholder = TRANSLATIONS[lang]['ph_password'];
             document.getElementById('newLabel').placeholder = (lang === 'en') ? "Ex: Google" : "Google";
@@ -422,14 +445,15 @@
         }
 
         function renderApp() {
-            // App Name & Title
+            // App Name
             const appName = appData.config.appName || "MyLinks App";
             document.getElementById('navAppName').innerText = appName;
             document.title = appName;
 
-            // Header Text
+            // Header Text (Dynamic)
             const header = document.getElementById('siteHeader');
             const textObj = appData.config.headerText || {};
+            // Fallback chain: Chosen Lang -> Lao -> Welcome
             header.innerText = textObj[currentLang] || textObj['lo'] || "Welcome";
             header.style.color = appData.config.headerColor;
             
@@ -478,13 +502,13 @@
                 appData.links.forEach(link => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap"><div class="w-8 h-8 rounded-full shadow-sm border border-gray-200" style="background-color: ${link.color}"></div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="w-8 h-8 rounded-full shadow-sm border border-gray-200 dark:border-gray-600" style="background-color: ${link.color}"></div></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${link.label}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs"><a href="${link.url}" target="_blank" class="hover:text-indigo-600 underline">${link.url}</a></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs"><a href="${link.url}" target="_blank" class="hover:text-indigo-600 hover:underline">${link.url}</a></td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                              <div class="flex justify-end space-x-2">
-                                <button onclick="startEdit(${link.id})" class="text-amber-600 bg-amber-50 px-3 py-1 rounded-md border border-amber-200"><i class="fa-solid fa-pen"></i> ${TRANSLATIONS[currentLang].btn_edit}</button>
-                                <button onclick="deleteLink(${link.id})" class="text-red-600 bg-red-50 px-3 py-1 rounded-md border border-red-200"><i class="fa-solid fa-trash"></i> ${TRANSLATIONS[currentLang].btn_delete}</button>
+                                <button onclick="startEdit(${link.id})" class="text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1 rounded-md border border-amber-200 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"><i class="fa-solid fa-pen"></i> ${TRANSLATIONS[currentLang].btn_edit}</button>
+                                <button onclick="deleteLink(${link.id})" class="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-3 py-1 rounded-md border border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/50"><i class="fa-solid fa-trash"></i> ${TRANSLATIONS[currentLang].btn_delete}</button>
                             </div>
                         </td>
                     `;
@@ -552,8 +576,8 @@
         function deleteLink(id) { if(confirm(TRANSLATIONS[currentLang].confirm_delete)) { if(document.getElementById('editLinkId').value == id) cancelEdit(); appData.links = appData.links.filter(l => l.id !== id); saveData(); } }
         function setLayout(mode) {
             const c = document.getElementById('publicLinksContainer'), g = document.getElementById('btnGrid'), l = document.getElementById('btnList');
-            if(mode === 'grid') { c.classList.add('md:grid-cols-2'); g.classList.add('bg-indigo-100','text-indigo-700'); l.classList.remove('bg-indigo-100','text-indigo-700'); }
-            else { c.classList.remove('md:grid-cols-2'); l.classList.add('bg-indigo-100','text-indigo-700'); g.classList.remove('bg-indigo-100','text-indigo-700'); }
+            if(mode === 'grid') { c.classList.add('md:grid-cols-2'); g.classList.add('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); l.classList.remove('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); }
+            else { c.classList.remove('md:grid-cols-2'); l.classList.add('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); g.classList.remove('bg-indigo-100','text-indigo-700','dark:bg-indigo-900/50','dark:text-indigo-300'); }
         }
         function updateConfigPreview() { document.getElementById('colorValue').innerText = document.getElementById('configHeaderColor').value; document.getElementById('previewLogo').src = document.getElementById('configLogoUrl').value || ""; }
         function toggleTheme() { document.documentElement.classList.toggle('dark'); }
